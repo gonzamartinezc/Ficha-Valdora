@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VALORA">
+<title>VALORA™ Captación v8</title>
+<style>
+:root{--bg:#0b0b0b;--s1:#141414;--s2:#1c1c1c;--s3:#232323;--b1:#2a2a2a;--b2:#333;--t1:#eee;--t2:#888;--t3:#555;--ac:#c9a96e;--ad:rgba(201,169,110,.12);--re:#e05a5a;--gr:#5ab87a;--gd:rgba(90,184,122,.12);--bl:#5a9be0;--r:12px;--rs:8px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--t1);font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+body{max-width:480px;margin:0 auto;padding-bottom:80px}
+
+/* Header */
+.hd{position:sticky;top:0;z-index:50;background:rgba(11,11,11,.95);backdrop-filter:blur(16px);padding:12px 16px 8px;border-bottom:.5px solid var(--b1)}
+.hd-r{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--ac)}
+.logo small{font-size:9px;color:var(--t3);letter-spacing:.04em;font-weight:400;margin-left:4px}
+.pbar{height:2px;background:var(--b1);border-radius:1px;margin-top:8px}
+.pfill{height:100%;background:var(--ac);border-radius:1px;transition:width .4s}
+.hcnt{font-size:10px;color:var(--t2)}
+
+/* Sections */
+.sec{padding:12px 14px 0}
+.slbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.slbl::after{content:'';flex:1;height:.5px;background:var(--b1)}
+.card{background:var(--s1);border:.5px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+
+/* GPS */
+.gps-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
+.gps-info{font-size:12px;color:var(--t2)}
+.gps-info strong{color:var(--t1);display:block;font-size:13px}
+.pill{font-size:9px;padding:3px 8px;border-radius:8px;background:var(--b2);color:var(--t3)}
+.pill.ok{background:var(--gd);color:var(--gr)}
+.gps-btn{width:100%;padding:13px;border:none;background:var(--ac);color:#0b0b0b;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:opacity .15s}
+.gps-btn:active{opacity:.8}
+.gps-btn.done{background:var(--gd);color:var(--gr)}
+.gps-det{padding:8px 12px;font-size:11px;color:var(--t2);line-height:1.6;display:none}
+.gps-det strong{color:var(--ac)}
+
+/* Voice */
+.voice-area{position:relative}
+.mic-float{position:fixed;bottom:85px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--ac);border:none;color:#0b0b0b;font-size:22px;cursor:pointer;z-index:40;box-shadow:0 4px 20px rgba(201,169,110,.3);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mic-float:active{transform:scale(.92)}
+.mic-float.rec{background:#e05a5a;animation:pulse 1s infinite;box-shadow:0 4px 24px rgba(224,90,90,.4)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+.mic-float.off{background:var(--s3);color:var(--t3);box-shadow:none}
+.rec-badge{position:fixed;bottom:148px;right:12px;padding:4px 10px;border-radius:10px;background:var(--re);color:#fff;font-size:10px;font-weight:700;z-index:40;display:none}
+.rec-badge.show{display:block;animation:pulse 1s infinite}
+textarea.notes{width:100%;min-height:120px;background:transparent;border:none;color:var(--t1);font-size:14px;padding:12px;font-family:inherit;resize:none;line-height:1.6;outline:none}
+textarea.notes::placeholder{color:var(--t3);font-size:12px;line-height:1.6}
+
+/* Fields */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:8px}
+.f{display:flex;flex-direction:column;gap:3px}
+.f label{font-size:9px;color:var(--ac);font-weight:600;letter-spacing:.03em}
+.f input,.f select{background:var(--s2);border:.5px solid rgba(201,169,110,.2);border-radius:var(--rs);color:var(--t1);font-size:16px;padding:9px 10px;width:100%;appearance:none;-webkit-appearance:none;outline:none;font-family:inherit}
+.f input:focus,.f select:focus{border-color:var(--ac)}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 3.5L9 1' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.f select option{background:#1c1c1c}
+.fsep{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 6px;grid-column:1/-1}
+
+/* Amenities */
+.am-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px}
+.am{padding:5px 10px;border-radius:14px;font-size:11px;background:var(--s2);border:.5px solid var(--b1);color:var(--t2);cursor:pointer;user-select:none;transition:all .15s;font-family:inherit}
+.am.on{background:var(--ad);border-color:var(--ac);color:var(--ac)}
+.am-sep{width:100%;font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:4px 0 2px}
+
+/* Defectos */
+.def-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px}
+.def{padding:5px 10px;border-radius:14px;font-size:11px;background:var(--s2);border:.5px solid var(--b1);color:var(--t2);cursor:pointer;user-select:none;transition:all .15s}
+.def.on{background:rgba(224,90,90,.12);border-color:var(--re);color:var(--re)}
+
+/* Bottom bar */
+.bbar{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;padding:10px 14px;background:rgba(11,11,11,.95);backdrop-filter:blur(16px);border-top:.5px solid var(--b1);display:flex;gap:6px}
+.bb{flex:1;padding:12px 6px;border-radius:var(--r);font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .15s;letter-spacing:.02em}
+.bb:active{transform:scale(.97)}
+.bb-main{background:var(--ac);color:#0b0b0b;flex:2}
+.bb-sec{background:var(--s2);color:var(--t1);border:.5px solid var(--b2)}
+.bb-sec.ok{background:var(--gd);color:var(--gr)}
+.bb-rst{flex:0 0 36px;background:rgba(224,90,90,.1);color:var(--re)}
+
+/* Toast */
+.toast{position:fixed;top:58px;left:50%;transform:translateX(-50%) translateY(-12px);padding:8px 14px;border-radius:12px;font-size:12px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:99;max-width:85vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.t-ok{background:var(--gr);color:#0b0b0b}
+.t-ac{background:var(--ac);color:#0b0b0b}
+.t-er{background:var(--re);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="hd-r">
+    <div class="logo">VALORA™ <small>CAPTACIÓN v8</small></div>
+    <div class="hcnt" id="hcnt">0%</div>
+  </div>
+  <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+</div>
+
+<!-- ① GPS -->
+<div class="sec">
+  <div class="slbl">① Ubicación</div>
+  <div class="card">
+    <div class="gps-row">
+      <div class="gps-info" id="gps-info"><strong>Sin ubicación</strong>Toca para detectar GPS y entorno</div>
+      <div class="pill" id="gps-pill">—</div>
+    </div>
+    <div class="gps-det" id="gps-det"></div>
+    <button class="gps-btn" id="gps-btn" onclick="doGPS()">⌖ Detectar GPS + entorno</button>
+  </div>
+
+  <!-- Micro-sector -->
+  <div class="card" style="padding:10px 12px">
+    <div class="fg">
+      <div class="f"><label>★ Micro-sector VALORA™</label>
+        <select id="msector">
+          <option value="">— Seleccionar —</option>
+          <optgroup label="CUMBAYÁ">
+            <option value="CU-A+">CU-A+ Jacarandá / Aromitos</option>
+            <option value="CU-A">CU-A San Patricio / La Primavera</option>
+            <option value="CU-B+">CU-B+ San Juan / Intervalles</option>
+            <option value="CU-B">CU-B Yanazarapata / genérico</option>
+            <option value="CU-C+">CU-C+ Periférico</option>
+          </optgroup>
+          <optgroup label="TUMBACO">
+            <option value="TU-A">TU-A La Viña / Algarrobos</option>
+            <option value="TU-B+">TU-B+ Arenal / Morita / Ruta Viva</option>
+            <option value="TU-B">TU-B Centro / Churoloma</option>
+            <option value="TU-C+">TU-C+ Tababela / periférico</option>
+          </optgroup>
+          <optgroup label="PUEMBO">
+            <option value="PU-A+">PU-A+ Arrayanes Country Club</option>
+            <option value="PU-A1">PU-A1 La Pradera ★ calibrado</option>
+            <option value="PU-A2">PU-A2 Otros conjuntos A</option>
+            <option value="PU-B+">PU-B+ Vía Arrayanes / La Cruz</option>
+            <option value="PU-B">PU-B Centro / periférico</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="f"><label>★ Tipo de propiedad</label>
+        <select id="tipo">
+          <option value="">—</option>
+          <option>Casa independiente</option>
+          <option>Casa en conjunto</option>
+          <option>Townhouse</option>
+          <option>Departamento</option>
+          <option>Terreno</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ② VOZ + NOTAS -->
+<div class="sec">
+  <div class="slbl">② Describe la propiedad — habla o escribe</div>
+  <div class="card">
+    <textarea class="notes" id="notas" placeholder="Toca el micrófono 🎤 y describe todo:
+
+• Metros, dormitorios, baños, parqueos
+• Estado, acabados, defectos
+• Amenities privados y comunales
+• Cuántas casas tiene el conjunto
+• Precio de compra, hipoteca, neto mínimo
+• Urgencia del propietario
+• Lo que te llame la atención..."></textarea>
+  </div>
+</div>
+
+<!-- ③ DATOS CRÍTICOS -->
+<div class="sec">
+  <div class="slbl">③ Datos críticos — verificar</div>
+  <div class="card" style="padding:10px 12px">
+    <div class="fg">
+      <div class="f"><label>★ M² construidos</label><input type="number" id="m2c" inputmode="decimal" placeholder="220"></div>
+      <div class="f"><label>★ M² terreno</label><input type="number" id="m2t" inputmode="decimal" placeholder="270"></div>
+    </div>
+    <div class="fg3">
+      <div class="f"><label>Dorms</label><input type="number" id="dorms" inputmode="numeric" placeholder="3"></div>
+      <div class="f"><label>Baños</label><input type="number" id="banos" inputmode="numeric" placeholder="3.5"></div>
+      <div class="f"><label>Parqueos</label><input type="number" id="parking" inputmode="numeric" placeholder="2"></div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>Año construcción</label><input type="number" id="anio" inputmode="numeric" placeholder="2019"></div>
+      <div class="f"><label>Estructura</label>
+        <select id="est"><option value="">—</option><option>Hormigón armado</option><option>Mixta</option><option>Madera / adobe</option></select>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>Estado</label>
+        <select id="estado"><option value="">—</option><option>Excelente / por estrenar</option><option>Muy bueno / remodelado</option><option>Bueno</option><option>Regular</option><option>Necesita reparación</option><option>Malo</option></select>
+      </div>
+      <div class="f"><label>Acabados</label>
+        <select id="acab"><option value="">—</option><option>Económicos</option><option>Medios</option><option>Medios-Altos</option><option>Altos</option><option>Lujo</option></select>
+      </div>
+    </div>
+
+    <div class="fsep">Conjunto (si aplica)</div>
+    <div class="fg">
+      <div class="f"><label>Nº casas en conjunto</label><input type="number" id="ncasas" inputmode="numeric" placeholder="60"></div>
+      <div class="f"><label>Antigüedad conjunto (años)</label><input type="number" id="aconj" inputmode="numeric" placeholder="6"></div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>Alícuota $/mes</label><input type="number" id="alic" inputmode="decimal" placeholder="100"></div>
+      <div class="f"><label>Renta mensual (si hay)</label><input type="number" id="renta" inputmode="decimal" placeholder="1400"></div>
+    </div>
+
+    <div class="fsep">★ Financiero</div>
+    <div class="fg">
+      <div class="f"><label>★ Precio compra original ($)</label><input type="number" id="compra" inputmode="decimal" placeholder="265000"></div>
+      <div class="f"><label>★ Año de compra</label><input type="number" id="anio_c" inputmode="numeric" placeholder="2019"></div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>Hipoteca vigente ($)</label><input type="number" id="hip" inputmode="decimal" placeholder="0"></div>
+      <div class="f"><label>Avalúo municipal ($)</label><input type="number" id="avaluo" inputmode="decimal"></div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>★ Neto mínimo ($)</label><input type="number" id="neto" inputmode="decimal" placeholder="265000"></div>
+      <div class="f"><label>Precio en mente ($)</label><input type="number" id="pcli" inputmode="decimal"></div>
+    </div>
+    <div class="fg">
+      <div class="f"><label>★ Urgencia</label>
+        <select id="urgencia"><option value="">—</option><option>Sin prisa</option><option>~6 meses</option><option>3 meses</option><option>1 mes</option><option>Inmediata</option></select>
+      </div>
+      <div class="f"><label>Contacto</label><input type="text" id="ctc" placeholder="Nombre / tel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ AMENITIES -->
+<div class="sec">
+  <div class="slbl">④ Amenities — toca para activar</div>
+  <div class="card">
+    <div class="am-wrap" id="am-wrap">
+      <div class="am-sep">Privados</div>
+      <button class="am" data-id="piscina_propia" onclick="tAm(this)">Piscina propia</button>
+      <button class="am" data-id="jardin_grande" onclick="tAm(this)">Jardín grande</button>
+      <button class="am" data-id="bbq" onclick="tAm(this)">BBQ</button>
+      <button class="am" data-id="master_vestidor" onclick="tAm(this)">Master c/vestidor</button>
+      <button class="am" data-id="doble_altura" onclick="tAm(this)">Doble altura</button>
+      <button class="am" data-id="jacuzzi" onclick="tAm(this)">Jacuzzi</button>
+      <button class="am" data-id="chimenea" onclick="tAm(this)">Chimenea</button>
+      <button class="am" data-id="terraza" onclick="tAm(this)">Terraza</button>
+      <button class="am" data-id="bodega" onclick="tAm(this)">Bodega</button>
+      <div class="am-sep">Comunales</div>
+      <button class="am" data-id="piscina_comunal" onclick="tAm(this)">Piscina comunal</button>
+      <button class="am" data-id="guardianeria" onclick="tAm(this)">Guardianía 24h</button>
+      <button class="am" data-id="gimnasio" onclick="tAm(this)">Gimnasio</button>
+      <button class="am" data-id="salon" onclick="tAm(this)">Salón comunal</button>
+      <button class="am" data-id="cancha" onclick="tAm(this)">Cancha</button>
+      <button class="am" data-id="areas_verdes" onclick="tAm(this)">Áreas verdes</button>
+      <button class="am" data-id="cerco_electrico" onclick="tAm(this)">Cerco eléctrico</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ DEFECTOS -->
+<div class="sec">
+  <div class="slbl">⑤ Defectos observados</div>
+  <div class="card">
+    <div class="def-wrap" id="def-wrap">
+      <button class="def" data-id="filtraciones" onclick="tDef(this)">Filtraciones</button>
+      <button class="def" data-id="humedad" onclick="tDef(this)">Humedad</button>
+      <button class="def" data-id="grietas" onclick="tDef(this)">Grietas</button>
+      <button class="def" data-id="ruido" onclick="tDef(this)">Ruido excesivo</button>
+      <button class="def" data-id="pintura" onclick="tDef(this)">Pintura deteriorada</button>
+      <button class="def" data-id="pisos" onclick="tDef(this)">Pisos dañados</button>
+      <button class="def" data-id="electrico" onclick="tDef(this)">Problema eléctrico</button>
+      <button class="def" data-id="plomeria" onclick="tDef(this)">Plomería</button>
+      <button class="def" data-id="pendiente" onclick="tDef(this)">Terreno en pendiente</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bbar">
+  <button class="bb bb-main" id="copybtn" onclick="copyForClaude()">⎘ Copiar para Claude</button>
+  <button class="bb bb-sec" onclick="genPDF()">PDF</button>
+  <button class="bb bb-rst" onclick="doReset()">✕</button>
+</div>
+
+<!-- MIC FLOAT -->
+<button class="mic-float" id="mic-btn" onclick="toggleMic()">🎤</button>
+<div class="rec-badge" id="rec-badge">● REC</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ═══ STATE ═══
+let ams={},defs={},gpsData=null,geoData=null,recog=null,isRec=false;
+const CRIT=['msector','tipo','m2c','m2t','compra','anio_c','neto','urgencia'];
+
+// ═══ INIT ═══
+function init(){
+  load();upd();
+  document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',()=>{save();upd();}));
+  initVoice();
+}
+
+function upd(){
+  const filled=CRIT.filter(id=>{const el=document.getElementById(id);return el&&el.value.trim();}).length;
+  const pct=Math.round((filled/CRIT.length)*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('hcnt').textContent=pct+'% completo';
+}
+
+// ═══ HELPERS ═══
+function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function showT(msg,cls='t-ac'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+cls;setTimeout(()=>t.classList.remove('show'),2500);}
+function dm(m){if(!m||m>50000)return'—';if(m<100)return'<100m';if(m<1000)return Math.round(m/50)*50+'m';return(m/1000).toFixed(1)+'km';}
+function gdist(a,b,c,d){const R=6371e3,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return R*2*Math.atan2(Math.sqrt(z),Math.sqrt(1-z));}
+
+// ═══ AMENITIES & DEFECTS ═══
+function tAm(el){const id=el.dataset.id;ams[id]=!ams[id];el.classList.toggle('on',ams[id]);save();upd();}
+function tDef(el){const id=el.dataset.id;defs[id]=!defs[id];el.classList.toggle('on',defs[id]);save();upd();}
+
+// ═══ VOICE ═══
+function initVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.getElementById('mic-btn').classList.add('off');return;}
+  recog=new SR();recog.continuous=true;recog.interimResults=true;recog.lang='es-EC';
+  let final='';
+  recog.onresult=e=>{
+    let interim='';const ta=document.getElementById('notas');
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    ta.value=(ta.getAttribute('data-prev')||'')+final+interim;
+    save();upd();
+  };
+  recog.onerror=()=>stopMic();
+  recog.onend=()=>{if(isRec)try{recog.start();}catch(e){}};
+}
+
+function toggleMic(){
+  if(!recog){showT('Micrófono no disponible','t-er');return;}
+  if(isRec)stopMic();
+  else{
+    isRec=true;const ta=document.getElementById('notas');
+    ta.setAttribute('data-prev',ta.value);
+    document.getElementById('mic-btn').classList.add('rec');
+    document.getElementById('rec-badge').classList.add('show');
+    try{recog.start();}catch(e){}
+    showT('🎤 Grabando — habla con naturalidad','t-ac');
+    // Scroll to notes
+    ta.scrollIntoView({behavior:'smooth',block:'center'});
+    ta.focus();
+  }
+}
+function stopMic(){
+  isRec=false;try{recog.stop();}catch(e){}
+  document.getElementById('mic-btn').classList.remove('rec');
+  document.getElementById('rec-badge').classList.remove('show');
+  save();upd();
+}
+
+// ═══ GPS ═══
+function doGPS(){
+  if(!navigator.geolocation){showT('GPS no disponible','t-er');return;}
+  const btn=document.getElementById('gps-btn');
+  btn.textContent='◌ Obteniendo señal...';btn.style.background='var(--s3)';btn.style.color='var(--t2)';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      gpsData={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)};
+      document.getElementById('gps-pill').textContent='±'+gpsData.acc+'m';
+      document.getElementById('gps-pill').className='pill ok';
+      btn.textContent='◌ Analizando entorno...';
+      fetchEnv(gpsData.lat,gpsData.lon);
+    },
+    err=>{
+      btn.textContent='⌖ Detectar GPS + entorno';btn.style.background='var(--ac)';btn.style.color='#0b0b0b';
+      showT('Error GPS — intenta al aire libre','t-er');
+    },
+    {enableHighAccuracy:true,timeout:15000}
+  );
+}
+
+async function fetchEnv(lat,lon){
+  geoData={zona:'',addr:'',colegios:[],vias:[],clubs:[],servicios:[],dists:[]};
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=es`,{headers:{'User-Agent':'VALORA/8'}});
+    if(r.ok){const d=await r.json();const a=d.address||{};
+      geoData.addr=[a.neighbourhood||a.suburb||'',a.town||a.city_district||'',a.county||''].filter(Boolean).join(', ');
+      const fl=d.display_name.toLowerCase();
+      if(fl.includes('cumbay'))geoData.zona='Cumbayá';
+      else if(fl.includes('tumbaco'))geoData.zona='Tumbaco';
+      else if(fl.includes('puembo'))geoData.zona='Puembo';
+    }
+  }catch(e){}
+  try{
+    const q=`[out:json][timeout:25];(node["amenity"~"school|university"]["name"](around:2500,${lat},${lon});way["amenity"~"school|university"]["name"](around:2500,${lat},${lon});way["highway"~"primary|secondary|trunk"]["name"](around:1000,${lat},${lon});node["leisure"~"golf_course|sports_centre"]["name"](around:3000,${lat},${lon});way["leisure"~"golf_course"]["name"](around:3000,${lat},${lon});node["shop"~"supermarket|mall"]["name"](around:1500,${lat},${lon});way["shop"~"supermarket|mall"]["name"](around:1500,${lat},${lon}););out body;`;
+    const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+    if(r.ok){const d=await r.json();const seen=new Set();
+      (d.elements||[]).forEach(el=>{
+        const nm=el.tags?.name;if(!nm||seen.has(nm))return;seen.add(nm);
+        const la=el.lat||(el.center?.lat),lo=el.lon||(el.center?.lon);
+        const dist=la&&lo?Math.round(gdist(lat,lon,la,lo)):null;
+        const am=el.tags.amenity||'',ls=el.tags.leisure||'',sh=el.tags.shop||'',hw=el.tags.highway||'';
+        const isPrem=/highlands|einstein|americano|menor|terranova|british|usfq|reinvent|harriet|cambridge/i.test(nm);
+        if(['school','university'].includes(am))geoData.colegios.push({name:nm,dist,prem:isPrem});
+        else if(ls)geoData.clubs.push({name:nm,dist});
+        else if(sh)geoData.servicios.push({name:nm,dist});
+        else if(hw&&!geoData.vias.find(x=>x.name===nm))geoData.vias.push({name:nm,dist});
+        if(/ruta viva/i.test(nm))geoData.dists.push({name:'Ruta Viva',dist,icon:'🛣'});
+        if(/chaquiñán|chaquinan/i.test(nm))geoData.dists.push({name:'Chaquiñán',dist,icon:'🚴'});
+        if(/arrayanes/i.test(nm))geoData.dists.push({name:'Club Arrayanes',dist,icon:'⛳'});
+      });
+      geoData.colegios.sort((a,b)=>(a.dist||9e9)-(b.dist||9e9));
+      geoData.clubs.sort((a,b)=>(a.dist||9e9)-(b.dist||9e9));
+    }
+  }catch(e){}
+  renderGPS();autoSuggestSector();save();
+}
+
+function renderGPS(){
+  const info=document.getElementById('gps-info');
+  info.innerHTML=`<strong>${geoData.zona||'Ubicación detectada'}</strong>${geoData.addr}`;
+  const det=document.getElementById('gps-det');
+  let html='';
+  if(geoData.colegios.length)html+=`<strong>Colegios:</strong> ${geoData.colegios.slice(0,6).map(c=>(c.prem?'🏆 ':'')+c.name+' ('+dm(c.dist)+')').join(' · ')}<br>`;
+  if(geoData.vias.length)html+=`<strong>Vías:</strong> ${geoData.vias.map(x=>x.name+' ('+dm(x.dist)+')').join(' · ')}<br>`;
+  if(geoData.clubs.length)html+=`<strong>Clubes:</strong> ${geoData.clubs.slice(0,4).map(c=>c.name+' ('+dm(c.dist)+')').join(' · ')}<br>`;
+  if(geoData.dists.length)html+=`<strong>Distancias:</strong> ${geoData.dists.map(d=>d.icon+' '+d.name+' '+dm(d.dist)).join(' · ')}<br>`;
+  if(gpsData)html+=`<span style="color:var(--t3)">GPS: ${gpsData.lat.toFixed(5)}, ${gpsData.lon.toFixed(5)}</span>`;
+  det.innerHTML=html;det.style.display='block';
+  const btn=document.getElementById('gps-btn');
+  btn.textContent='✓ Entorno detectado';btn.className='gps-btn done';
+  showT('✓ Entorno detectado','t-ok');
+}
+
+function autoSuggestSector(){
+  if(!geoData)return;
+  const sel=document.getElementById('msector');if(sel.value)return; // don't override manual selection
+  const z=geoData.zona,addr=(geoData.addr||'').toLowerCase();
+  const premCol=geoData.colegios.find(c=>c.prem&&c.dist<800);
+  const hasArrayanes=geoData.clubs.some(c=>/arrayanes/i.test(c.name)&&c.dist<1500);
+  // Auto-suggest based on GPS
+  if(z==='Puembo'){
+    if(/pradera|sierra verde|loma y sol/i.test(addr))sel.value='PU-A1';
+    else if(hasArrayanes)sel.value='PU-A+';
+    else if(premCol)sel.value='PU-A2';
+    else sel.value='PU-B+';
+  }else if(z==='Cumbayá'){
+    if(/jacarandá|jacaranda|aromitos/i.test(addr))sel.value='CU-A+';
+    else if(/primavera|patricio|highlands|menor/i.test(addr))sel.value='CU-A';
+    else if(/san juan|intervalles|lumbisí/i.test(addr))sel.value='CU-B+';
+    else sel.value='CU-B';
+  }else if(z==='Tumbaco'){
+    if(/viña|algarrobo/i.test(addr))sel.value='TU-A';
+    else if(/arenal|morita|ruta viva|cerámica/i.test(addr))sel.value='TU-B+';
+    else sel.value='TU-B';
+  }
+  if(sel.value)showT('Micro-sector sugerido: '+sel.value,'t-ac');
+  save();upd();
+}
+
+// ═══ BUILD OUTPUT FOR CLAUDE ═══
+function buildFicha(){
+  const amList=Object.entries(ams).filter(([k,v])=>v).map(([k])=>k.replace(/_/g,' ')).join(', ');
+  const defList=Object.entries(defs).filter(([k,v])=>v).map(([k])=>k.replace(/_/g,' ')).join(', ');
+  const gpsStr=geoData?[
+    geoData.zona?'Zona: '+geoData.zona:'',
+    geoData.addr?'Dirección: '+geoData.addr:'',
+    geoData.colegios.length?'Colegios: '+geoData.colegios.slice(0,6).map(c=>(c.prem?'★ ':'')+c.name+' ('+dm(c.dist)+')').join(', '):'',
+    geoData.vias.length?'Vías: '+geoData.vias.map(x=>x.name+' ('+dm(x.dist)+')').join(', '):'',
+    geoData.dists.length?'Distancias: '+geoData.dists.map(d=>d.name+' '+dm(d.dist)).join(' | '):'',
+    geoData.clubs.length?'Clubes: '+geoData.clubs.slice(0,4).map(c=>c.name+' ('+dm(c.dist)+')').join(', '):'',
+    gpsData?'GPS: '+gpsData.lat.toFixed(5)+', '+gpsData.lon.toFixed(5)+' (±'+gpsData.acc+'m)':'',
+  ].filter(Boolean).join('\n'):'Sin GPS';
+
+  return `Genera el reporte VALORA™ v7.0 completo para esta propiedad:
+
+═══ FICHA DE CAPTACIÓN ═══
+
+MICRO-SECTOR: ${v('msector')||'NO INDICADO — preguntar'}
+TIPO: ${v('tipo')||'—'}
+
+ENTORNO GPS:
+${gpsStr}
+
+ÁREAS Y CONSTRUCCIÓN:
+M² construidos: ${v('m2c')||'—'} | M² terreno: ${v('m2t')||'—'}
+Dormitorios: ${v('dorms')||'—'} | Baños: ${v('banos')||'—'} | Parqueos: ${v('parking')||'—'}
+Año construcción: ${v('anio')||'—'} | Estructura: ${v('est')||'—'}
+Estado: ${v('estado')||'—'} | Acabados: ${v('acab')||'—'}
+
+CONJUNTO:
+Nº casas: ${v('ncasas')||'—'} | Antigüedad conjunto: ${v('aconj')||'—'} años
+Alícuota: ${v('alic')?'$'+v('alic')+'/mes':'—'}
+
+AMENITIES: ${amList||'ninguno indicado'}
+DEFECTOS: ${defList||'ninguno observado'}
+
+FINANCIERO:
+Precio compra original: ${v('compra')?'$'+Number(v('compra')).toLocaleString():'—'} (año ${v('anio_c')||'—'})
+Hipoteca vigente: ${v('hip')?'$'+Number(v('hip')).toLocaleString():'$0'}
+Avalúo municipal: ${v('avaluo')?'$'+Number(v('avaluo')).toLocaleString():'— (usar proxy)'}
+Neto mínimo requerido: ${v('neto')?'$'+Number(v('neto')).toLocaleString():'—'}
+Precio en mente del propietario: ${v('pcli')?'$'+Number(v('pcli')).toLocaleString():'—'}
+Renta mensual: ${v('renta')?'$'+v('renta')+'/mes':'sin renta'}
+Urgencia: ${v('urgencia')||'—'}
+Contacto: ${v('ctc')||'—'}
+
+NOTAS DE CAMPO:
+${v('notas')||'sin notas'}
+
+═══ FIN FICHA ═══`;
+}
+
+function copyForClaude(){
+  const txt=buildFicha();const btn=document.getElementById('copybtn');
+  const ok=()=>{btn.textContent='✓ Copiado — pega en Claude';btn.classList.add('ok');
+    showT('Pega en el chat de Claude con VALORA™ v7.0','t-ok');
+    setTimeout(()=>{btn.textContent='⎘ Copiar para Claude';btn.classList.remove('ok');},3000);};
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok).catch(()=>{fallbackCopy(txt);ok();});
+  else{fallbackCopy(txt);ok();}
+}
+function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
+
+// ═══ PDF ═══
+function genPDF(){
+  if(typeof window.jspdf==='undefined'){showT('Cargando...');setTimeout(genPDF,1500);return;}
+  try{
+    const{jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
+    const W=210,M=14,CW=W-2*M;let y=14;
+    const G=[201,169,110],DK=[11,11,11],L1=[238,238,238],L2=[136,136,136];
+    doc.setFillColor(...DK);doc.rect(0,0,W,297,'F');
+    doc.setFillColor(20,20,20);doc.rect(0,0,W,26,'F');
+    doc.setDrawColor(...G);doc.setLineWidth(.6);doc.line(0,26,W,26);
+    doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...G);doc.text('VALORA\u2122',M,11);
+    doc.setFontSize(7);doc.setTextColor(...L2);doc.text('FICHA CAPTACI\u00D3N v8',M,16);
+    const dt=new Date().toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'});
+    doc.text(dt,W-M,11,{align:'right'});
+    const sec=v('msector')||'Sin sector';const zona=geoData?.zona||'';
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...L1);
+    doc.text(sec+' \u2014 '+zona,W-M,17,{align:'right'});
+    y=32;
+    const ficha=buildFicha().replace(/^Genera.*\n\n/,'');
+    const lines=doc.splitTextToSize(ficha,CW);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...L1);
+    lines.forEach(line=>{
+      if(y>280){doc.addPage();doc.setFillColor(...DK);doc.rect(0,0,W,297,'F');y=14;}
+      if(line.startsWith('═')||line.startsWith('MICRO')||line.startsWith('ENTORNO')||line.startsWith('ÁREAS')||line.startsWith('CONJUNTO')||line.startsWith('AMENITIES')||line.startsWith('FINANCIERO')||line.startsWith('NOTAS')||line.startsWith('DEFECTOS')){
+        doc.setFont('helvetica','bold');doc.setTextColor(...G);
+      }else{doc.setFont('helvetica','normal');doc.setTextColor(...L1);}
+      doc.text(line,M,y);y+=4.5;
+    });
+    doc.save('VALORA_'+new Date().toISOString().slice(0,10)+'.pdf');
+    showT('PDF descargado','t-ok');
+  }catch(e){showT('Error PDF','t-er');console.error(e);}
+}
+
+// ═══ PERSISTENCE ═══
+function save(){
+  const d={};
+  document.querySelectorAll('input,select,textarea').forEach(el=>{if(el.id)d[el.id]=el.value;});
+  d._ams=ams;d._defs=defs;if(gpsData)d._gps=gpsData;if(geoData)d._geo=geoData;
+  try{localStorage.setItem('valora_v8',JSON.stringify(d));}catch(e){}
+}
+function load(){
+  try{
+    const raw=localStorage.getItem('valora_v8');if(!raw)return;const d=JSON.parse(raw);
+    Object.entries(d).forEach(([k,val])=>{
+      if(k==='_ams'){ams=val;Object.entries(val).forEach(([id,on])=>{if(on){const b=document.querySelector(`[data-id="${id}"]`);if(b)b.classList.add('on');}});}
+      else if(k==='_defs'){defs=val;Object.entries(val).forEach(([id,on])=>{if(on){const b=document.querySelector(`[data-id="${id}"]`);if(b)b.classList.add('on');}});}
+      else if(k==='_gps'){gpsData=val;if(gpsData){document.getElementById('gps-pill').textContent='±'+gpsData.acc+'m';document.getElementById('gps-pill').className='pill ok';}}
+      else if(k==='_geo'){geoData=val;if(geoData)renderGPS();}
+      else{const el=document.getElementById(k);if(el)el.value=val;}
+    });
+  }catch(e){}
+}
+
+function doReset(){
+  if(!confirm('¿Limpiar todo?'))return;
+  localStorage.removeItem('valora_v8');
+  document.querySelectorAll('input,select,textarea').forEach(el=>el.value='');
+  ams={};defs={};gpsData=null;geoData=null;
+  document.querySelectorAll('.am,.def').forEach(b=>b.classList.remove('on'));
+  document.getElementById('gps-info').innerHTML='<strong>Sin ubicación</strong>Toca para detectar';
+  document.getElementById('gps-pill').textContent='—';document.getElementById('gps-pill').className='pill';
+  document.getElementById('gps-det').style.display='none';
+  const btn=document.getElementById('gps-btn');btn.textContent='⌖ Detectar GPS + entorno';btn.className='gps-btn';btn.style.background='';btn.style.color='';
+  if(isRec)stopMic();
+  window.scrollTo({top:0,behavior:'smooth'});upd();showT('Nueva captación');
+}
+
+window.onload=init;
+</script>
+</body>
+</html>
